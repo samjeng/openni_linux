@@ -82,7 +82,13 @@ git clone https://github.com/lips-hci/openni_linux.git LIPS_Sample
 #### Build Samples ####
 ##### NiRecorder #####
 ```
-cd LIPS_Sample\NiRecorder
+cd LIPS_Sample/NiRecorder
+CXX=g++ make
+```
+
+##### NiSimpleViewer #####
+```
+cd LIPS_Sample/NiSimpleViewer
 CXX=g++ make
 ```
 
