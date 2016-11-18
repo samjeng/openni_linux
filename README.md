@@ -98,3 +98,33 @@ You can base the samples we provided to develop your own application. What you n
 * Append the source files' name to SRC
 * According the path related to SDK, modify the CPPFLAGS and LDFLAGS appropriately. i.e., you man need to add -I and -L to the correct location.
 * You can also use Clang to compile your application by change CXX from g++ to clang.
+
+### ARM Platform Application Development ###
+For LIPSedge AT developer, since LIPSedge AT is ARM-based CPU architecture platform, we suggest to use [docker] (https://www.docker.com/) to develop the application to save your time of establishing a cross-compile OpenNI-installed environment. You could pull the image from Docker Hub by following command
+```
+docker pull lips/aarch32_openni
+```
+Be noted, please install QEMU to emulate ARM CPU architecture on your work station, like the commands below:
+```
+apt-get install qemu qemu-user-static binfmt-support
+update-binfmts --enable qemu-arm
+```
+Then you could use 'docker run' command to launch the container
+```
+docker run -it -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static lips/aarch32_openni /bin/bash
+```
+#### Build LIPS Sample ####
+Please refer the section "Download LIPS Sample Code" to download sample code from github, and modify the compile flags defined in Makefile, i.e., modify CPPFLAGS and LDFLAGS from
+```
+-I../../Include
+-L../../Lib
+```
+to
+```
+-I/usr/include/ni
+-L/usr/lib
+```
+Then compile the source in the same way
+```
+CXX=g++ make
+```
