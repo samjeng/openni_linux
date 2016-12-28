@@ -41,5 +41,7 @@ int main( int argc, char* argv[] )
 
         waitKey( 1 );
     }
+    mContext.StopGeneratingAll();
+    mContext.Release();
     return 0;
 }
