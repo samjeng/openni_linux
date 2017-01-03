@@ -14,6 +14,7 @@
 #define CLIENT_PORT 5567
 #define MAX_DATA 1024
 #define PKT_SIZE 51200
+#define MAX_COUNT 20
 
 using namespace std;
 using namespace cv;
@@ -25,29 +26,7 @@ int main( int argc, char* argv[] )
     int frame_size = IMG_WIDTH*IMG_HEIGHT*2;
     char data[MAX_DATA] = {0};
     char *data1;
-    char *data2;
-    char *data3;
-    char *data4;
-    char *data5;
-    char *data6;
-    char *data7;
-    char *data8;
-    char *data9;
-    char *data10;
-    char *data11;
-    char *data12;
-    data1 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data2 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data3 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data4 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data5 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data6 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data7 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data8 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data9 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data10 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data11 = (char*)malloc(PKT_SIZE*sizeof(char));
-    data12 = (char*)malloc(PKT_SIZE*sizeof(char));
+    data1 = (char*)malloc((PKT_SIZE+1)*sizeof(char));
     char *data_all;
     data_all = (char*)malloc(IMG_WIDTH*IMG_HEIGHT*2*sizeof(char));
     struct sockaddr_in myaddr;
@@ -89,33 +68,19 @@ int main( int argc, char* argv[] )
         cout << "sendto server error" << endl;
         return 1;
     } 
-    
+
+    unsigned count = 0;
     while ( true )
     {
-        recvfrom(socket_fd, data1, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data2, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data3, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data4, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data5, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data6, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data7, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data8, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data9, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data10, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data11, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        recvfrom(socket_fd, data12, PKT_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
-        memcpy(data_all, data1, PKT_SIZE);
-        memcpy(data_all + PKT_SIZE, data2, PKT_SIZE);
-        memcpy(data_all + 2 * PKT_SIZE, data3, PKT_SIZE);
-        memcpy(data_all + 3 * PKT_SIZE, data4, PKT_SIZE);
-        memcpy(data_all + 4 * PKT_SIZE, data5, PKT_SIZE);
-        memcpy(data_all + 5 * PKT_SIZE, data6, PKT_SIZE);
-        memcpy(data_all + 6 * PKT_SIZE, data7, PKT_SIZE);
-        memcpy(data_all + 7 * PKT_SIZE, data8, PKT_SIZE);
-        memcpy(data_all + 8 * PKT_SIZE, data9, PKT_SIZE);
-        memcpy(data_all + 9 * PKT_SIZE, data10, PKT_SIZE);
-        memcpy(data_all + 10 * PKT_SIZE, data11, PKT_SIZE);
-        memcpy(data_all + 11 * PKT_SIZE, data12, PKT_SIZE);
+        recvfrom(socket_fd, data1, PKT_SIZE + 1, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
+        unsigned int offset = *data1 - 'A';
+        //cout << "offset : " << offset << endl;
+        memcpy(data_all + offset * PKT_SIZE , data1 + 1, PKT_SIZE);
+        if (++count < MAX_COUNT) {
+            continue;
+        } else {
+            count = 0;
+        }
         Mat imgDepth( IMG_HEIGHT, IMG_WIDTH, CV_16UC1, ( void* )data_all );
         Mat img8bitDepth;
         imgDepth.convertTo( img8bitDepth, CV_8U, 255.0 / 5000 );
@@ -125,17 +90,6 @@ int main( int argc, char* argv[] )
     }
 
     free(data1);
-    free(data2);
-    free(data3);
-    free(data4);
-    free(data5);
-    free(data6);
-    free(data7);
-    free(data8);
-    free(data9);
-    free(data10);
-    free(data11);
-    free(data12);
     free(data_all);
     return 0;
 }
