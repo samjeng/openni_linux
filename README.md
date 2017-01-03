@@ -91,6 +91,26 @@ CXX=g++ make
 cd LIPS_Sample/NiSimpleViewer
 CXX=g++ make
 ```
+##### NiUDPServer #####
+```
+cd LIPS_Sample/NiUDPServer
+CXX=g++ make
+```
+
+##### NiUDPClient #####
+```
+cd LIPS_Sample/NiUDPClient
+CXX=g++ make
+```
+##### Note #####
+To run NiUDPServer, the depth camera module should be attached, and you should exactly know client's IP address. For example, client's IP address is 192.168.1.2:
+```
+./NiUDPServer 192.168.1.2
+```
+And run NiUDPClient, you don't need camera module, but OpenCV should be installed well. And you also need to know server's IP address. For example, server's IP address is 192.168.1.10:
+```
+./NiUDPClient 192.168.1.10 fromClient
+```
 
 #### Build your own application ####
 You can base the samples we provided to develop your own application. What you need to know to edit Makefile are:
