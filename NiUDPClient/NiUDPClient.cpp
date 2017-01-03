@@ -15,6 +15,7 @@
 #define MAX_DATA 1024
 #define PKT_SIZE 51200
 #define MAX_COUNT 20
+#define FID_SIZE 11
 
 using namespace std;
 using namespace cv;
@@ -23,10 +24,9 @@ int main( int argc, char* argv[] )
 {
     int socket_fd;
     int size;
-    int frame_size = IMG_WIDTH*IMG_HEIGHT*2;
     char data[MAX_DATA] = {0};
     char *data1;
-    data1 = (char*)malloc((PKT_SIZE+1)*sizeof(char));
+    data1 = (char*)malloc((PKT_SIZE+FID_SIZE)*sizeof(char));
     char *data_all;
     data_all = (char*)malloc(IMG_WIDTH*IMG_HEIGHT*2*sizeof(char));
     struct sockaddr_in myaddr;
@@ -61,32 +61,34 @@ int main( int argc, char* argv[] )
         return 1;
     }
     memcpy(hp->h_addr_list[0], (caddr_t)&server_addr.sin_addr, hp->h_length); 
-    strncpy(data, argv[2], MAX_DATA); 
+    strncpy(data, "done", MAX_DATA);
 
     size = sizeof(server_addr);
-    if (sendto(socket_fd, data, sizeof(data), 0, (struct sockaddr*)&server_addr, size) == -1) {
-        cout << "sendto server error" << endl;
-        return 1;
-    } 
 
-    unsigned count = 0;
+    char serial[11] = {0};
+    char now_serial[11] = {0};
+    int counter = 0;
     while ( true )
     {
-        recvfrom(socket_fd, data1, PKT_SIZE + 1, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
+        recvfrom(socket_fd, data1, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&server_addr, (socklen_t *)&size);
         unsigned int offset = *data1 - 'A';
-        //cout << "offset : " << offset << endl;
-        memcpy(data_all + offset * PKT_SIZE , data1 + 1, PKT_SIZE);
-        if (++count < MAX_COUNT) {
-            continue;
-        } else {
-            count = 0;
+        memcpy(serial, data1 + 1, FID_SIZE-1);
+        counter++;
+        //cout << "offset : " << offset << ", serial : " << serial << ", now_serial : " << now_serial << ", counter : " << counter << endl;
+        if (!strcmp(now_serial, "")) {
+            strcpy(now_serial, serial);
+        } else if (strcmp(now_serial, serial)) {
+            strcpy(now_serial, serial);
+            if (counter > 9) {
+                Mat imgDepth( IMG_HEIGHT, IMG_WIDTH, CV_16UC1, ( void* )data_all );
+                Mat img8bitDepth;
+                imgDepth.convertTo( img8bitDepth, CV_8U, 255.0 / 5000 );
+                imshow( "Depth view", img8bitDepth );
+                waitKey( 1 );
+            }
+            counter = 0;
         }
-        Mat imgDepth( IMG_HEIGHT, IMG_WIDTH, CV_16UC1, ( void* )data_all );
-        Mat img8bitDepth;
-        imgDepth.convertTo( img8bitDepth, CV_8U, 255.0 / 5000 );
-        imshow( "Depth view", img8bitDepth );
-
-        waitKey( 1 );
+        memcpy(data_all + offset * PKT_SIZE , data1 + FID_SIZE, PKT_SIZE);
     }
 
     free(data1);

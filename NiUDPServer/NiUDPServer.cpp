@@ -11,8 +11,8 @@
 #define IMG_FPS 30
 #define SERVER_PORT 5566
 #define CLIENT_PORT 5567
-#define MAXNAME 1024
 #define PKT_SIZE 51200
+#define FID_SIZE 11
 
 using namespace std;
 using namespace xn;
@@ -50,19 +50,20 @@ int main( int argc, char* argv[] )
     char *data10;
     char *data11;
     char *data12;
+    char frame_id[FID_SIZE] = {0};
    
-    data1 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data2 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data3 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data4 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data5 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data6 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data7 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data8 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data9 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data10 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data11 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
-    data12 = (char*)malloc((PKT_SIZE + 1)*sizeof(char));
+    data1 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data2 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data3 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data4 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data5 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data6 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data7 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data8 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data9 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data10 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data11 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+    data12 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
 
     // 2. Prepare UDP socket 
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0 ) {
@@ -92,11 +93,11 @@ int main( int argc, char* argv[] )
         inet_aton(argv[1], &client_addr.sin_addr);
 
         cout << "Received data from " << inet_ntoa(client_addr.sin_addr) << " : " << htons(client_addr.sin_port) << endl;
-        cout << buf << endl;
         while ( !xnOSWasKeyboardHit() )
         {
             mContext.WaitOneUpdateAll(mDepthGen);
             mDepthGen.GetMetaData(mDepthMD);
+            sprintf(frame_id, "%d", mDepthMD.FrameID());
             *data1 = 'A';
             *data2 = 'B';
             *data3 = 'C';
@@ -109,31 +110,43 @@ int main( int argc, char* argv[] )
             *data10 = 'J';
             *data11 = 'K';
             *data12 = 'L';
-            memcpy(data1 + 1, mDepthMD.Data(), PKT_SIZE);
-            memcpy(data2 + 1, mDepthMD.Data() + PKT_SIZE/2, PKT_SIZE);
-            memcpy(data3 + 1, mDepthMD.Data() + PKT_SIZE, PKT_SIZE);
-            memcpy(data4 + 1, mDepthMD.Data() + PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
-            memcpy(data5 + 1, mDepthMD.Data() + 2 * PKT_SIZE, PKT_SIZE);
-            memcpy(data6 + 1, mDepthMD.Data() + 2 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
-            memcpy(data7 + 1, mDepthMD.Data() + 3 * PKT_SIZE, PKT_SIZE);
-            memcpy(data8 + 1, mDepthMD.Data() + 3 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
-            memcpy(data9 + 1, mDepthMD.Data() + 4 * PKT_SIZE, PKT_SIZE);
-            memcpy(data10 + 1 , mDepthMD.Data() + 4 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
-            memcpy(data11 + 1, mDepthMD.Data() + 5 * PKT_SIZE, PKT_SIZE);
-            memcpy(data12 + 1, mDepthMD.Data() + 5 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data1 + 1, frame_id, FID_SIZE);
+            memcpy(data1 + FID_SIZE, mDepthMD.Data(), PKT_SIZE);
+            memcpy(data2 + 1, frame_id, FID_SIZE);
+            memcpy(data2 + FID_SIZE, mDepthMD.Data() + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data3 + 1, frame_id, FID_SIZE);
+            memcpy(data3 + FID_SIZE, mDepthMD.Data() + PKT_SIZE, PKT_SIZE);
+            memcpy(data4 + 1, frame_id, FID_SIZE);
+            memcpy(data4 + FID_SIZE, mDepthMD.Data() + PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data5 + 1, frame_id, FID_SIZE);
+            memcpy(data5 + FID_SIZE, mDepthMD.Data() + 2 * PKT_SIZE, PKT_SIZE);
+            memcpy(data6 + 1, frame_id, FID_SIZE);
+            memcpy(data6 + FID_SIZE, mDepthMD.Data() + 2 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data7 + 1, frame_id, FID_SIZE);
+            memcpy(data7 + FID_SIZE, mDepthMD.Data() + 3 * PKT_SIZE, PKT_SIZE);
+            memcpy(data8 + 1, frame_id, FID_SIZE);
+            memcpy(data8 + FID_SIZE, mDepthMD.Data() + 3 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data9 + 1, frame_id, FID_SIZE);
+            memcpy(data9 + FID_SIZE, mDepthMD.Data() + 4 * PKT_SIZE, PKT_SIZE);
+            memcpy(data10 + 1, frame_id, FID_SIZE);
+            memcpy(data10 + FID_SIZE , mDepthMD.Data() + 4 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+            memcpy(data11 + 1, frame_id, FID_SIZE);
+            memcpy(data11 + FID_SIZE, mDepthMD.Data() + 5 * PKT_SIZE, PKT_SIZE);
+            memcpy(data12 + 1, frame_id, FID_SIZE);
+            memcpy(data12 + FID_SIZE, mDepthMD.Data() + 5 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
             length = sizeof(client_addr);
-            sendto( socket_fd, data1, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data2, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data3, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data4, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data5, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data6, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data7, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data8, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data9, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data10, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data11, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
-            sendto( socket_fd, data12, PKT_SIZE + 1, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data1, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data2, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data3, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data4, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data5, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data6, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data7, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data8, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data9, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data10, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data11, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+            sendto( socket_fd, data12, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
         }
     }
 
