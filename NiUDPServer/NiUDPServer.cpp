@@ -6,8 +6,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#if defined(RES_VGA)
 #define IMG_WIDTH 640
 #define IMG_HEIGHT 480
+#else
+#define IMG_WIDTH 320
+#define IMG_HEIGHT 240
+#endif
 #define IMG_FPS 30
 #define SERVER_PORT 5566
 #define CLIENT_PORT 5567
@@ -41,6 +46,7 @@ int main( int argc, char* argv[] )
     char *data1;
     char *data2;
     char *data3;
+#if defined(RES_VGA)
     char *data4;
     char *data5;
     char *data6;
@@ -50,11 +56,13 @@ int main( int argc, char* argv[] )
     char *data10;
     char *data11;
     char *data12;
+#endif
     char frame_id[FID_SIZE] = {0};
    
     data1 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data2 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data3 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+#if defined(RES_VGA)
     data4 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data5 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data6 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
@@ -64,6 +72,7 @@ int main( int argc, char* argv[] )
     data10 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data11 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
     data12 = (char*)malloc((PKT_SIZE + FID_SIZE)*sizeof(char));
+#endif
 
     // 2. Prepare UDP socket 
     if ((socket_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0 ) {
@@ -101,6 +110,7 @@ int main( int argc, char* argv[] )
             *data1 = 'A';
             *data2 = 'B';
             *data3 = 'C';
+#if defined(RES_VGA)
             *data4 = 'D';
             *data5 = 'E';
             *data6 = 'F';
@@ -110,12 +120,14 @@ int main( int argc, char* argv[] )
             *data10 = 'J';
             *data11 = 'K';
             *data12 = 'L';
+#endif
             memcpy(data1 + 1, frame_id, FID_SIZE);
             memcpy(data1 + FID_SIZE, mDepthMD.Data(), PKT_SIZE);
             memcpy(data2 + 1, frame_id, FID_SIZE);
             memcpy(data2 + FID_SIZE, mDepthMD.Data() + PKT_SIZE/2, PKT_SIZE);
             memcpy(data3 + 1, frame_id, FID_SIZE);
             memcpy(data3 + FID_SIZE, mDepthMD.Data() + PKT_SIZE, PKT_SIZE);
+#if defined(RES_VGA)
             memcpy(data4 + 1, frame_id, FID_SIZE);
             memcpy(data4 + FID_SIZE, mDepthMD.Data() + PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
             memcpy(data5 + 1, frame_id, FID_SIZE);
@@ -134,10 +146,12 @@ int main( int argc, char* argv[] )
             memcpy(data11 + FID_SIZE, mDepthMD.Data() + 5 * PKT_SIZE, PKT_SIZE);
             memcpy(data12 + 1, frame_id, FID_SIZE);
             memcpy(data12 + FID_SIZE, mDepthMD.Data() + 5 * PKT_SIZE + PKT_SIZE/2, PKT_SIZE);
+#endif
             length = sizeof(client_addr);
             sendto( socket_fd, data1, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data2, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data3, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+#if defined(RES_VGA)
             sendto( socket_fd, data4, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data5, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data6, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
@@ -147,6 +161,7 @@ int main( int argc, char* argv[] )
             sendto( socket_fd, data10, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data11, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
             sendto( socket_fd, data12, PKT_SIZE + FID_SIZE, 0, (struct sockaddr*)&client_addr, length);
+#endif
         }
     }
 
@@ -157,6 +172,7 @@ int main( int argc, char* argv[] )
     free(data1);
     free(data2);
     free(data3);
+#if defined(RES_VGA)
     free(data4);
     free(data5);
     free(data6);
@@ -166,6 +182,7 @@ int main( int argc, char* argv[] )
     free(data10);
     free(data11);
     free(data12);
+#endif
     return 0;
 }
 

@@ -1,5 +1,5 @@
 SRC = ./NiUDPClient.cpp
-CPPFLAGS = -Dlinux -I../../Include -std=c++11
+CPPFLAGS = -Dlinux -DRES_VGA -I../../Include -std=c++11
 LDFLAGS = -L../../Lib -lOpenNI
 
 # OpenCV

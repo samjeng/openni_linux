@@ -1,5 +1,5 @@
 SRC = ./NiUDPServer.cpp
-CPPFLAGS = -Dlinux -I../../Include -std=c++11 -O2
+CPPFLAGS = -Dlinux -DRES_VGA -I../../Include -std=c++11 -O2
 LDFLAGS = -L../../Lib -lOpenNI
 
 LOCAL_TARGET = NiUDPServer

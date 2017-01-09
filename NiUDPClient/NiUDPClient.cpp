@@ -8,8 +8,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#if defined(RES_VGA)
 #define IMG_WIDTH 640
 #define IMG_HEIGHT 480
+#else
+#define IMG_WIDTH 320
+#define IMG_HEIGHT 240
+#endif
 #define SERVER_PORT 5566
 #define CLIENT_PORT 5567
 #define MAX_DATA 1024
@@ -79,7 +84,11 @@ int main( int argc, char* argv[] )
             strcpy(now_serial, serial);
         } else if (strcmp(now_serial, serial)) {
             strcpy(now_serial, serial);
+#if defined(RES_VGA)
             if (counter > 9) {
+#else
+            if (counter > 2) {
+#endif
                 Mat imgDepth( IMG_HEIGHT, IMG_WIDTH, CV_16UC1, ( void* )data_all );
                 Mat img8bitDepth;
                 imgDepth.convertTo( img8bitDepth, CV_8U, 255.0 / 5000 );
